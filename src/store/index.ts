@@ -13,6 +13,7 @@ interface State {
   addParticipant: (
     meetId: string,
     username: string,
+    fullName: string,
   ) => Promise<ParticipantDetails>;
 }
 
@@ -57,13 +58,13 @@ function _createMeeting() {
   });
 }
 
-function _addParticipant(meetId: string, username: string) {
+function _addParticipant(meetId: string, username: string, fullName: string) {
   return new Promise<ParticipantDetails>((resolve, reject) => {
     axios
       .post(
         `https://api.cluster.dyte.in/v2/meetings/${meetId}/participants`,
         {
-          name: username,
+          name: fullName,
           preset_name: 'group_call_host',
           custom_participant_id: username,
         },

@@ -30,9 +30,7 @@ export default function Register({
         <Text className="text-4xl font-black text-black mb-6 text-center">
           Register
         </Text>
-        <Text className="text-lg font-bold text-black mb-2">
-          Enter username
-        </Text>
+        <Text className="text-lg font-bold text-black mb-2">Enter Name</Text>
         <TextInput
           className="border border-slate-300 rounded-xl text-lg px-4 text-black"
           placeholder="Enter your name"
@@ -40,6 +38,9 @@ export default function Register({
           onChangeText={newText => setFullName(newText)}
           defaultValue={fullName}
         />
+        <Text className="text-lg font-bold text-black mb-2 mt-4">
+          Enter Username
+        </Text>
         <TextInput
           className="border border-slate-300 rounded-xl text-lg px-4 text-black"
           placeholder="Enter your username"

@@ -1,10 +1,10 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {Contact} from './general';
+import {Contact, Meeting} from './general';
 
 export type NavigationRoutesWithParams = {
   register: undefined;
   'contact-list': undefined;
-  'join-call': {contact: Contact};
+  'join-call': {contact: Contact; caller?: Contact; activeMeeting?: Meeting};
 };
 
 export type RegisterScreenProps = NativeStackScreenProps<

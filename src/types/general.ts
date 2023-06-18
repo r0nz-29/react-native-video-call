@@ -26,23 +26,7 @@ export interface ParticipantDetails {
 }
 
 export interface FirebaseSnapshot {
-  meeting: {
-    record_on_start: boolean;
-    title: string;
-    live_stream_on_start: boolean;
-    updated_at: string;
-    id: string;
-    status: string;
-    created_at: string;
-  };
-  contact: {
-    username: string;
-    name: string;
-    icon: string;
-  };
-  caller: {
-    username: string;
-    name: string;
-    icon: string;
-  };
+  meeting: Meeting;
+  contact: Contact;
+  caller: Contact;
 }

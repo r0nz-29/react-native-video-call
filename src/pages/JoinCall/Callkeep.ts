@@ -1,5 +1,3 @@
-import RNCallKeep from 'react-native-callkeep';
-import uuid from 'uuid';
 import {PermissionsAndroid} from 'react-native';
 
 export const callerSetupOptions = {
@@ -77,10 +75,6 @@ class Caller {
   //   // You can now start a call from within your app
   // };
   //
-  // onAnswerCallAction = data => {
-  //   let {callUUID} = data;
-  //   // Called when the user answers an incoming call
-  // };
   //
   // onEndCallAction = data => {
   //   let {callUUID} = data;
