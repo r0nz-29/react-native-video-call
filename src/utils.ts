@@ -26,6 +26,8 @@ export const contacts = [
   },
 ];
 
+export const server_url = 'https://ringer-api.cyclic.app/';
+
 export function log(title: string, object: any) {
   console.log(title);
   console.log(JSON.stringify(object, null, 2));

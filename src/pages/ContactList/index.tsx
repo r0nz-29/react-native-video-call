@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {contacts, log} from '../../utils';
 import {Contact, FirebaseSnapshot, Meeting} from '../../types/general';
 import {ContactListScreenProps} from '../../types/navigation';
-import database from '@react-native-firebase/database';
+import messaging from '@react-native-firebase/messaging';
 import RNCallKeep from 'react-native-callkeep';
 import {useGlobalStore} from '../../store';
 import 'react-native-get-random-values';
@@ -12,8 +12,10 @@ import {callerSetupOptions} from '../JoinCall/Callkeep';
 
 export default function ContactList({navigation}: ContactListScreenProps) {
   const username = useGlobalStore(state => state._username);
-  const [callIntercepted, setCallIntercepted] = useState(false);
-  const [details, setDetails] = useState<{meeting: Meeting; caller: Contact}>();
+  const [details, setDetails] = useState<{
+    meeting: Meeting;
+    caller: Contact;
+  } | null>(null);
 
   function initiateCall(contact: Contact) {
     console.log(contact);
@@ -21,39 +23,29 @@ export default function ContactList({navigation}: ContactListScreenProps) {
   }
 
   useEffect(() => {
-    const listener = database()
-      .ref('/activeMeeting')
-      .on('child_added', _snapshot => {
-        if (username === '') {
-          console.log('set username');
-          return;
-        }
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      if (!remoteMessage.data) {
+        console.log('empty data');
+        return;
+      }
 
-        const snapshot = _snapshot.val() as FirebaseSnapshot;
+      const payload = JSON.parse(
+        remoteMessage.data.payload,
+      ) as FirebaseSnapshot;
+      const {meeting, contact, caller} = payload;
 
-        if (Object.keys(snapshot).length === 0) {
-          console.log('empty');
-          console.log(snapshot);
-          return;
-        }
-        // @ts-ignore
-        const {meeting, contact, caller} = snapshot;
+      log('payload: ', payload);
 
-        // console.log(contact.username, username);
-        if (contact.username === username && !callIntercepted) {
-          setDetails({meeting, caller});
-          RNCallKeep.displayIncomingCall(
-            uuidv4(),
-            caller.username,
-            caller.name,
-          );
-          setCallIntercepted(true);
-        }
-      });
-
-    // Stop listening for updates when no longer required
-    return () => database().ref('/activeMeeting').off('child_added', listener);
-  }, [navigation, username, callIntercepted]);
+      if (contact.username === username) {
+        console.log(username);
+        setDetails({meeting, caller});
+        RNCallKeep.displayIncomingCall(uuidv4(), caller.username, caller.name);
+      } else {
+        console.log('BAD USERNAME');
+      }
+    });
+    return unsubscribe;
+  }, [username]);
 
   function onEndCallAction(data: {callUUID: string}) {
     const {callUUID} = data;
@@ -64,13 +56,15 @@ export default function ContactList({navigation}: ContactListScreenProps) {
     function onAnswerCallAction(data: {callUUID: string}) {
       const {callUUID} = data;
       RNCallKeep.endCall(callUUID);
-      if (details?.caller && details.meeting) {
+      if (details) {
         log('details', details);
         navigation.push('join-call', {
           contact: {name: '', username: '', icon: ''},
-          caller: details?.caller,
-          activeMeeting: details?.meeting,
+          caller: details.caller,
+          activeMeeting: details.meeting,
         });
+      } else {
+        console.log('DETAILS NULL');
       }
     }
 

@@ -5,9 +5,9 @@ import {useGlobalStore} from '../../store';
 import {DyteMeeting, Meeting as MeetingResponse} from '@dytesdk/mobile';
 import {Meeting, ParticipantDetails} from '../../types/general';
 import {log} from '../../utils';
-import database from '@react-native-firebase/database';
+import {notifyServer} from '../../api';
 
-export default function JoinCall({route, navigation}: JoinCallScreenProps) {
+export default function JoinCall({route}: JoinCallScreenProps) {
   const {contact, activeMeeting, caller} = route.params;
   const createMeeting = useGlobalStore(s => s.createMeeting);
   const addParticipant = useGlobalStore(s => s.addParticipant);
@@ -18,7 +18,7 @@ export default function JoinCall({route, navigation}: JoinCallScreenProps) {
 
   useEffect(() => {
     if (activeMeeting?.id) {
-      log('meeting info:-', activeMeeting);
+      log('active meeting info:-', activeMeeting);
       setMeeting(activeMeeting);
       return;
     }
@@ -44,37 +44,21 @@ export default function JoinCall({route, navigation}: JoinCallScreenProps) {
   function onInitMeeting(_meeting: MeetingResponse) {
     log('received meeting:-', _meeting);
 
-    _meeting.on(_meeting.Events.meetingEnded, () => {
-      navigation.pop();
-      if (activeMeeting?.id) {
-        return;
-      }
-      database()
-        .ref('/activeMeeting/' + meeting?.id)
-        .remove()
-        .then(() => {
-          console.log('Firebase cleared');
-        });
-    });
-
     if (activeMeeting?.id) {
       return;
     }
-    database()
-      .ref('/activeMeeting/' + meeting?.id)
-      .set({
-        meeting,
-        contact,
-        caller: {username: localUsername, name: localFullName, icon: ''},
-      })
-      .then(() => console.log('Data set in firebase.'))
-      .catch(err => log('Error while setting firebase data:-', err));
+
+    notifyServer({
+      meeting,
+      contact,
+      caller: {username: localUsername, name: localFullName, icon: ''},
+    });
   }
 
   return (
     <SafeAreaView>
       <ScrollView>
-        <View>
+        <View className="bg-black">
           <Text className="text-white text-3xl bg-black p-4">
             Meeting with{' '}
             {activeMeeting?.id ? caller?.username : contact.username}
