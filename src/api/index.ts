@@ -3,7 +3,7 @@ import axios from 'axios';
 import {server_url} from '../utils';
 
 export function notifyServer(payload: {
-  meeting: Meeting;
+  meeting?: Meeting;
   contact: Contact;
   caller: Contact;
 }) {

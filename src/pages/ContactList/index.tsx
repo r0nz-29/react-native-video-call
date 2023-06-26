@@ -1,9 +1,11 @@
 import {Image, Text, TouchableOpacity, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {contacts, log} from '../../utils';
+import React, {useCallback, useEffect, useState} from 'react';
+import {contacts, log, reOpenApp} from '../../utils';
 import {Contact, FirebaseSnapshot, Meeting} from '../../types/general';
 import {ContactListScreenProps} from '../../types/navigation';
-import messaging from '@react-native-firebase/messaging';
+import messaging, {
+  FirebaseMessagingTypes,
+} from '@react-native-firebase/messaging';
 import RNCallKeep from 'react-native-callkeep';
 import {useGlobalStore} from '../../store';
 import 'react-native-get-random-values';
@@ -22,8 +24,8 @@ export default function ContactList({navigation}: ContactListScreenProps) {
     navigation.push('join-call', {contact});
   }
 
-  useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
+  const onPayload = useCallback(
+    (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
       if (!remoteMessage.data) {
         console.log('empty data');
         return;
@@ -43,9 +45,20 @@ export default function ContactList({navigation}: ContactListScreenProps) {
       } else {
         console.log('BAD USERNAME');
       }
+    },
+    [username],
+  );
+
+  useEffect(() => {
+    return messaging().onMessage(onPayload);
+  }, [onPayload]);
+
+  useEffect(() => {
+    return messaging().setBackgroundMessageHandler(async remoteMessage => {
+      onPayload(remoteMessage);
+      return Promise.resolve();
     });
-    return unsubscribe;
-  }, [username]);
+  }, [onPayload]);
 
   function onEndCallAction(data: {callUUID: string}) {
     const {callUUID} = data;
@@ -56,6 +69,8 @@ export default function ContactList({navigation}: ContactListScreenProps) {
     function onAnswerCallAction(data: {callUUID: string}) {
       const {callUUID} = data;
       RNCallKeep.endCall(callUUID);
+      reOpenApp();
+
       if (details) {
         log('details', details);
         navigation.push('join-call', {

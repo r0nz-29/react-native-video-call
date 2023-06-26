@@ -7,7 +7,7 @@ import {Meeting, ParticipantDetails} from '../../types/general';
 import {log} from '../../utils';
 import {notifyServer} from '../../api';
 
-export default function JoinCall({route}: JoinCallScreenProps) {
+export default function JoinCall({route, navigation}: JoinCallScreenProps) {
   const {contact, activeMeeting, caller} = route.params;
   const createMeeting = useGlobalStore(s => s.createMeeting);
   const addParticipant = useGlobalStore(s => s.addParticipant);
@@ -44,6 +44,13 @@ export default function JoinCall({route}: JoinCallScreenProps) {
   function onInitMeeting(_meeting: MeetingResponse) {
     log('received meeting:-', _meeting);
 
+    _meeting.on(_meeting.Events.meetingEnded, () =>
+      navigation.push('contact-list'),
+    );
+    _meeting.on(_meeting.Events.disconnect, () =>
+      navigation.push('contact-list'),
+    );
+
     if (activeMeeting?.id) {
       return;
     }
@@ -56,12 +63,11 @@ export default function JoinCall({route}: JoinCallScreenProps) {
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView>
+    <SafeAreaView className="bg-black">
+      <ScrollView className="bg-black">
         <View className="bg-black">
-          <Text className="text-white text-3xl bg-black p-4">
-            Meeting with{' '}
-            {activeMeeting?.id ? caller?.username : contact.username}
+          <Text className="text-white text-xl bg-[#141414] p-4">
+            Meeting with {activeMeeting?.id ? caller?.name : contact.name}
           </Text>
           {participant?.token && meeting?.title ? (
             <DyteMeeting

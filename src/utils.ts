@@ -1,3 +1,5 @@
+import {Linking} from 'react-native';
+
 export const contacts = [
   {
     name: 'John Doe',
@@ -32,3 +34,8 @@ export function log(title: string, object: any) {
   console.log(title);
   console.log(JSON.stringify(object, null, 2));
 }
+
+export const reOpenApp = async () => {
+  console.log('opening ringer://');
+  return Linking.openURL('ringer://open');
+};

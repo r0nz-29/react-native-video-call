@@ -23,16 +23,33 @@ function App(): JSX.Element {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName={username === '' ? 'register' : 'contact-list'}>
-        <Stack.Screen name="register" component={Register} />
-        <Stack.Screen name="contact-list" component={ContactList} />
+        <Stack.Screen
+          name="register"
+          component={Register}
+          options={{
+            headerShadowVisible: false,
+            headerStyle: {
+              backgroundColor: '#fff',
+            },
+            headerTintColor: '#000',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
+        <Stack.Screen
+          name="contact-list"
+          component={ContactList}
+          options={{headerShadowVisible: false}}
+        />
         <Stack.Screen
           name="join-call"
           component={JoinCall}
           options={{
             headerStyle: {
-              backgroundColor: '#000',
+              backgroundColor: '#141414',
             },
-            headerTintColor: '#55f',
+            headerTintColor: '#2160fd',
             headerTitleStyle: {
               fontWeight: 'bold',
             },

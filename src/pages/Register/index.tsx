@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {useGlobalStore} from '../../store';
 import {RegisterScreenProps} from '../../types/navigation';
@@ -8,9 +8,9 @@ export default function Register({
 }: RegisterScreenProps): JSX.Element {
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
-
-  const _setUsername = useGlobalStore(state => state.setUsername);
-  const _setName = useGlobalStore(state => state.setName);
+  const _username = useGlobalStore(store => store._username);
+  const _setUsername = useGlobalStore(store => store.setUsername);
+  const _setName = useGlobalStore(store => store.setName);
 
   function handleSubmit() {
     _setUsername(username);
@@ -21,6 +21,12 @@ export default function Register({
 
     navigation.push('contact-list');
   }
+
+  useEffect(() => {
+    if (_username !== '') {
+      navigation.push('contact-list');
+    }
+  }, [_username, navigation]);
 
   return (
     <View className="h-screen w-scren bg-white p-4 flex flex-col justify-center">
@@ -49,7 +55,7 @@ export default function Register({
           defaultValue={username}
         />
         <TouchableOpacity
-          className="w-full p-2 rounded-xl bg-blue-600 mt-2"
+          className="w-full p-2 rounded-xl bg-dyte-blue mt-4"
           onPress={handleSubmit}>
           <Text className="text-white text-xl text-center font-bold">
             Continue
